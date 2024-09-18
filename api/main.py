@@ -4,6 +4,7 @@ import qrcode
 import boto3
 import os
 from io import BytesIO
+from pydantic import AnyUrl
 
 # Loading Environment variable (AWS Access Key and Secret Key)
 from dotenv import load_dotenv
@@ -32,7 +33,7 @@ s3 = boto3.client(
 bucket_name = 'devops-qr-code-generator-bucket' # Add your bucket name here
 
 @app.post("/generate-qr/")
-async def generate_qr(url: str):
+async def generate_qr(url: AnyUrl):
     # Generate QR Code
     qr = qrcode.QRCode(
         version=1,
@@ -40,7 +41,7 @@ async def generate_qr(url: str):
         box_size=10,
         border=4,
     )
-    qr.add_data(url)
+    qr.add_data(str(url))
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
@@ -51,7 +52,7 @@ async def generate_qr(url: str):
     img_byte_arr.seek(0)
 
     # Generate file name for S3
-    file_name = f"qr_codes/{url.split('//')[-1]}.png"
+    file_name = f"qr_codes/{url.host}/{url.path.lstrip('/')}.png"
 
     try:
         # Upload to S3

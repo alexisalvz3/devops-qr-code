@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from main import app
 
 # creating a TestClient instance.
-client = TestClient(app=app)
+client = TestClient(app)
 
 class TestQRCodeAPI:
     def test_generate_qr_code(self):
